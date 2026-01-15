@@ -1,7 +1,3 @@
-Here's a comprehensive project plan that covers both:
-
----
-
 ## **Project: Understanding Shear Measurement Systematics Through Custom Simulation**
 
 ### **Phase 1: Build Core Simulation Engine (Weeks 1-5)**
