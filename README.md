@@ -157,7 +157,3 @@ shear-systematics-r/
 │   └── final_report.Rmd    # R Markdown report
 └── README.md
 ```
-
----
-
-**Does this timeline feel realistic given your other commitments? Would you want to adjust the scope of Phase 2 or 3?**
