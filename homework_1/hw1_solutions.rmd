@@ -1,0 +1,29 @@
+---
+title: "Homework 1 Solutions"
+output:
+  pdf_document: default
+  html_document: default
+author: "Adam Field"
+date: "January 27, 2026"
+---
+
+```{r setup, include=TRUE}
+# Set global options
+knitr::opts_chunk$set(
+  echo = TRUE,       # Show R code in the output
+  warning = FALSE,   # Hide warnings
+  message = FALSE,   # Hide package startup messages
+  fig.width = 6,     # Default figure width
+  fig.height = 4,    # Default figure height
+  fig.align = "center"
+)
+
+# Load commonly used libraries
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(readr)
+
+# Set a random seed for reproducibility
+set.seed(123)
+```
