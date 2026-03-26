@@ -551,25 +551,22 @@ variance reduction technique at all.
 
 ## Introduction
 
-This project investigates how multiplicative shear bias propagates through a
-weak gravitational lensing mass reconstruction pipeline using standard methods.  
-Weak lensing is among the most powerful probes of
-cosmological structure: by measuring the coherent distortion of background
-galaxy shapes induced by intervening mass distributions, one can reconstruct the
-projected surface mass density $\kappa(\boldsymbol{\theta})$ of galaxy clusters
-and large-scale structure.  The standard pipeline consists of two stages: a
-shape measurement stage, in which galaxy ellipticities are estimated from
-noisy, PSF-convolved images using a method such as NGmix with metacalibration,
-followed by a mass reconstruction stage, in which the estimated shear field is
-inverted to recover $\kappa$ using a method such as Kaiser-Squires.  Both
-stages introduce systematic errors, and understanding how errors in the first
-stage propagate into errors in the second is a fundamental question in weak
-lensing statistics with direct implications for survey design.  This project
-addresses that question through a controlled Monte Carlo simulation study using
-GalSim for image generation, NGmix with metacalibration for shape measurement,
-and Kaiser-Squires for mass reconstruction, applying variance reduction
-techniques and bootstrap inference drawn from the MA 551 curriculum to a problem
-not previously addressed in this form.
+This project investigates how multiplicative shear bias propagates through a 
+weak gravitational lensing mass reconstruction pipeline using standard methods. 
+Weak lensing is among the most powerful probes of cosmological structure. 
+By measuring the coherent distortion of background galaxy shapes induced by 
+intervening mass distributions, one can reconstruct the projected surface mass density 
+$\kappa(\boldsymbol{\theta})$ of galaxy clusters and large-scale structure. 
+The standard pipeline consists of two stages: a shape measurement stage, in which 
+galaxy ellipticities are estimated from noisy, PSF-convolved images using a method 
+such as NGmix with metacalibration, followed by a mass reconstruction stage, in which 
+the estimated shear field is inverted to recover $\kappa$ using a method such as Kaiser-Squires. 
+Both stages introduce systematic errors, and understanding how errors in the first stage propagate 
+into errors in the second is a fundamental question in weak lensing statistics with direct implications 
+for survey design. This project addresses that question through a controlled Monte Carlo simulation study 
+using GalSim for image generation, NGmix with metacalibration for shape measurement, and Kaiser-Squires for 
+mass reconstruction, applying variance reduction techniques and bootstrap inference drawn from the MA 551 
+curriculum to a problem not previously addressed in this form.
 
 ## Problem Description
 
