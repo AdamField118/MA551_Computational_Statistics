@@ -93,14 +93,14 @@
     table.hline(stroke: 0.3pt),
     [FFT frequency convention matches `numpy.fft.fftfreq`], [PASS],
     [$|D(bold(k))| = 1$ for all $bold(k) != bold(0)$ (machine precision)], [PASS],
-    [Noiseless round-trip $L_2$ error $< 10^{-10}$], [PASS],
+    [Noiseless round-trip $L_2$ error $< 10^(-10)$], [PASS],
     [Linearity: $F(a kappa_1 + b kappa_2) = a F(kappa_1) + b F(kappa_2)$], [PASS],
     [Parseval / adjoint: $chevron.l F kappa, gamma chevron.r = chevron.l kappa, F^* gamma chevron.r$], [PASS],
-    [B-mode purity $< 10^{-10}$ for physical $kappa$], [PASS],
-    [SMPy exact formula equivalence: max diff $< 10^{-14}$], [PASS],
+    [B-mode purity $< 10^(-10)$ for physical $kappa$], [PASS],
+    [SMPy exact formula equivalence: max diff $< 10^(-14)$], [PASS],
     [Single-frequency (sinusoidal) analytical solution], [PASS],
     [DC non-contamination: adding constant to $kappa$ does not change $gamma$], [PASS],
-    [Peak amplitude recovered to $10^{-10}$ (DC-corrected)], [PASS],
+    [Peak amplitude recovered to $10^(-10)$ (DC-corrected)], [PASS],
     table.hline(stroke: 0.5pt),
   )
 ]
@@ -117,9 +117,9 @@
     [
       #v(-14pt)
       *Grid:* $32 times 32$ pixels, $0.1$ arcmin/pixel \
-      *Field:* $3.2 times 3.2$ arcmin${}^2$ \
+      *Field:* $3.2 times 3.2$ arcmin$#box(width: 0pt)^2$ \
       *True $kappa$:* Gaussian cluster, peak $= 0.297$, $sigma_ell = 0.5$ arcmin \
-      *Galaxies:* $N_"gal" = 5{,}000$ \
+      *Galaxies:* $N_"gal" = 5,000$ \
       *Noise:* $sigma_"pix" = 0.118$, max $|gamma| = 0.103$ \
       *SNR per pixel:* $approx 0.85$ (noise-dominated)
 
@@ -127,7 +127,7 @@
 
       *Two scalar summaries:*
       - Peak $hat(kappa)$: maximum pixel value
-      - Aperture mass: $T_"ap" = sum_(r <= 0.8) hat(kappa) , delta theta^2$
+      - Aperture mass: $T_"ap" = sum_(r <= 0.8) hat(kappa) space delta theta^2$
 
       Aperture mass is preferred: it integrates over a region rather than
       taking the maximum of a noisy field.
@@ -160,12 +160,12 @@
     table.hline(stroke: 0.3pt),
     [$L_2$ error], [0 ($m=0$)], [1.521], [0.045],
     [Peak $hat(kappa)$], [0.297], [*0.488*], [0.051],
-    [Aperture mass], [0.250${}^dagger$], [0.251], [0.015],
+    [Aperture mass], [0.250$#box(width: 0pt)^dagger$], [0.251], [0.015],
     table.hline(stroke: 0.6pt),
   )
   #text(size: 10pt)[$dagger$ Noiseless KS value; true-$kappa$ aperture mass is 0.346 (DC offset 9.6%).]
 
-  #v(12pt)
+  #v(6pt)
 
   - *Peak kappa is severely upward-biased:* the maximum of 1024 noisy pixels
     is a noise spike, not the cluster. Bootstrap is not valid for this statistic.
@@ -195,7 +195,7 @@
 
   #v(-10pt)
 
-  *The degenerate case:* $L_2(epsilon) = ||F^{-1} epsilon|| \/ ||kappa_"true"||$ depends
+  *The degenerate case:* $L_2(epsilon) = ||F^(-1) epsilon|| \/ ||kappa_"true"||$ depends
   only on $||epsilon||$, so $L_2(epsilon) = L_2(-epsilon)$ *exactly*.
   Antithetic pairs are identical; averaging them halves the effective sample size
   without any variance reduction.
@@ -247,7 +247,7 @@
 
   *BCa correction factors:*
 
-  - *Bias correction* $hat(z)_0 = Phi^{-1}(B^{-1} sum_b bb(1)(hat(T)_b^* < hat(T)))$: adjusts for median shift
+  - *Bias correction* $hat(z)_0 = Phi^(-1)(B^(-1) sum_b bb(1)(hat(T)_b^* < hat(T)))$: adjusts for median shift
   - *Acceleration* $hat(a)$: estimated via *column jackknife* on the shear grid.
     Delete column $j$, recompute KS reconstruction. Requires $N = 32$ reconstructions
     (not $N^2$). For near-linear estimators, $hat(a) approx 0$.
@@ -269,7 +269,7 @@
   #v(-10pt)
 
   Peak BCa fails: every bootstrap replicate adds fresh noise, so the bootstrap
-  peak *always exceeds* the noiseless reference. $hat(z)_0 = Phi^{-1}(0) = -infinity$.
+  peak *always exceeds* the noiseless reference. $hat(z)_0 = Phi^(-1)(0) = -infinity$.
 ]
 
 #content-slide([Coverage Study: $n_"outer" = 200$ Replicates])[
@@ -336,12 +336,12 @@
 
 #content-slide([Power Curve: Detecting $|m| = 0.01$ at 5$sigma$])[
   Non-centrality parameter and power for $B = 500$ replicates per condition,
-  significance threshold $alpha = 2.87 times 10^{-7}$ (5-sigma).
+  significance threshold $alpha = 2.87 times 10^(-7)$ (5-sigma).
 
-  #v(8pt)
+  #v(-10pt)
 
   #table(
-    columns: (auto, auto, auto, auto),
+    columns: (1fr, 1fr, 1fr, 1fr),
     stroke: none,
     inset: 7pt,
     table.hline(stroke: 0.6pt),
@@ -356,11 +356,9 @@
     table.hline(stroke: 0.6pt),
   )
 
-  #v(10pt)
+  #v(-10pt)
 
   *Minimum $N_"gal"$ for 80% power:* $approx$ 24,400 (analytic `uniroot`).
-
-  #v(6pt)
 
   MC verification at $N_"gal" = 5000$, $B = 500$: NCP $= 2.30$, power $= 0.002$
   (analytic: 2.70, 0.008 -- 15% gap from finite-$B$ fluctuation, as expected).
@@ -384,8 +382,6 @@
     [Power], [24,400 galaxies for 80% power at 5$sigma$ detecting $|m|=0.01$, $B=500$],
   )
 
-  #v(14pt)
-
   *Unifying theme:* the linearity of the KS operator creates a consistent pattern.
   Linear statistics (aperture mass) are tractable for bootstrap and IS but
   degenerate for antithetic and paired designs. Non-linear statistics (peak)
@@ -396,7 +392,7 @@
 #content-slide([Connections to MA 551 Curriculum])[
   Every analysis in this project maps directly to course material:
 
-  #v(8pt)
+  #v(-10pt)
 
   - *Notes \#3--4:* simulation-based hypothesis testing, critical values
   - *Notes \#6:* the bootstrap, empirical CDF, resampling
@@ -405,13 +401,11 @@
   - *Notes \#13:* antithetic variables (monotonicity condition), importance
     sampling (proposal design), control variates
 
-  #v(12pt)
-
   The project is approximately 80% statistical analysis and 20% forward modeling.
   The astrophysics provides a concrete inverse problem where the statistical
   methods produce physically interpretable results.
 
-  #v(12pt)
+  #v(-10pt)
 
   *Future work:* GalSim-simulated galaxy images with realistic PSF convolution
   and metacalibration shear response correction, placing this analysis in a
