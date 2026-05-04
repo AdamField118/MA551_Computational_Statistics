@@ -129,8 +129,8 @@ SMPy#footnote[https://github.com/GeorgeVassilakis/SMPy]
 $(k_1^2 - k_2^2) hat(G)_1 + 2k_1 k_2 hat(G)_2) \/ k^2$ for the
 E-mode, which is algebraically identical to
 $op("Re")[overline(D) hat(gamma)]$ (Notes \#11, \#12). A 10-test
-analytical suite confirmed noiseless round-trip error below $10^{-10}$,
-$|D(bold(k))| = 1$ to machine precision, and B-mode purity below $10^{-10}$
+analytical suite confirmed noiseless round-trip error below $10^(-10)$,
+$|D(bold(k))| = 1$ to machine precision, and B-mode purity below $10^(-10)$
 for a physical convergence field.
 
 == Noise Model and Simulation Setup
