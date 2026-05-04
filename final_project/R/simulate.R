@@ -1,180 +1,171 @@
 # =============================================================================
-# R/lensing.R
-# Core weak lensing operators: forward (kappa -> gamma) and KS inverse.
+# R/simulate.R
+# Galaxy catalog simulation and shape noise addition.
 #
-# Physics summary (can be skipped in the report):
-#   The lensing potential psi satisfies Laplace^2 psi = 2*kappa.
-#   In Fourier space the convergence and shear are related by:
-#     gamma_hat(k) = D(k) * kappa_hat(k)
-#   where D(k) = (k1^2 - k2^2 + 2i*k1*k2) / (k1^2 + k2^2)
-#   is the Kaiser-Squires kernel (undefined at k=0; set to 0).
-#   The KS inverse is just the conjugate: kappa_hat = Re( conj(D) * gamma_hat ).
+# Provides: add_shape_noise_to_grid()
 #
-# In statistical terms: F is a known linear operator with a closed-form
-# pseudoinverse, making this an ideal testbed for studying how noise
-# propagates through a regularized inverse problem.
+# Physics summary:
+#   Each simulated galaxy contributes an ellipticity estimate
+#     eps_i = (1 + m) * gamma(x_i) + c + e_i,    e_i ~ N(0, sigma_e^2 / 2)
+#   where gamma(x_i) is the true shear at galaxy position x_i,
+#   m is multiplicative bias, c is additive bias, and sigma_e is the
+#   per-component intrinsic shape dispersion (~0.26 per component).
+#
+#   Galaxies are assumed uniformly distributed; we bin onto the kappa grid
+#   (no actual positions needed for grid-level statistics).
+#   The effective per-pixel noise is sigma_e / sqrt(n_gal_per_pixel).
+#
+# Statistical framing:
+#   This is the noise model driving the inverse problem.  Shape noise is
+#   irreducible (intrinsic galaxy ellipticities); varying N_gal directly
+#   controls the signal-to-noise in the shear map and therefore the
+#   reconstruction error kappa_hat - kappa_true.
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# make_grid()
-# Returns a list with the spatial grid and its Fourier-space frequencies.
-# N_pix : number of pixels along each axis (square grid)
-# pix   : pixel scale (arcmin)
-# -----------------------------------------------------------------------------
-make_grid <- function(N_pix = 64, pix = 0.05) {
-  # Spatial coordinates (centered at 0)
-  coords <- (seq_len(N_pix) - N_pix / 2 - 0.5) * pix
 
-  # Fourier frequencies (cycles per arcmin), using standard FFT convention
-  freqs  <- (seq_len(N_pix) - 1L)
-  freqs  <- ifelse(freqs <= N_pix / 2, freqs, freqs - N_pix)
-  freqs  <- freqs / (N_pix * pix)
+# -----------------------------------------------------------------------------
+# add_shape_noise_to_grid()
+#
+# Simulates a noisy, possibly biased shear observation on a pixelised grid.
+#
+# Arguments:
+#   gamma_true : list with $gamma1 and $gamma2 (N x N real matrices)
+#   grid       : from make_grid()
+#   N_gal      : total number of source galaxies in the field
+#   sigma_e    : per-component intrinsic ellipticity dispersion
+#   m          : multiplicative bias (scalar; 0 = unbiased)
+#   c          : additive bias (scalar; 0 = unbiased)
+#   seed       : optional RNG seed for reproducibility
+#
+# Returns: list with
+#   $gamma1_est  : N x N estimated gamma1 (biased + noisy)
+#   $gamma2_est  : N x N estimated gamma2 (biased + noisy)
+#   $sigma_pix   : per-pixel noise standard deviation (scalar)
+#   $n_gal_pix   : expected number of galaxies per pixel (scalar)
+# -----------------------------------------------------------------------------
+add_shape_noise_to_grid <- function(gamma_true, grid,
+                                    N_gal   = 500,
+                                    sigma_e = 0.26,
+                                    m       = 0,
+                                    c       = 0,
+                                    seed    = NULL) {
+  if (!is.null(seed)) set.seed(seed)
+
+  N          <- grid$N_pix
+  n_gal_pix  <- N_gal / N^2          # expected galaxies per pixel
+  sigma_pix  <- sigma_e / sqrt(n_gal_pix)
+
+  # Apply linear shear bias model: gamma_obs = (1+m) * gamma_true + c
+  g1_biased  <- (1 + m) * gamma_true$gamma1 + c
+  g2_biased  <- (1 + m) * gamma_true$gamma2 + c
+
+  # Add independent Gaussian shape noise
+  noise1     <- matrix(rnorm(N^2, 0, sigma_pix), N, N)
+  noise2     <- matrix(rnorm(N^2, 0, sigma_pix), N, N)
 
   list(
-    N_pix  = N_pix,
-    pix    = pix,
-    x      = coords,
-    y      = coords,
-    kx     = freqs,
-    ky     = freqs,
-    L      = N_pix * pix   # field side length in arcmin
+    gamma1_est = g1_biased + noise1,
+    gamma2_est = g2_biased + noise2,
+    sigma_pix  = sigma_pix,
+    n_gal_pix  = n_gal_pix
   )
 }
 
-# -----------------------------------------------------------------------------
-# make_true_kappa()
-# Gaussian convergence profile: kappa(r) = kappa0 * exp(-r^2 / 2*sigma_l^2)
-# Optionally adds a secondary component (substructure) offset from center.
-# -----------------------------------------------------------------------------
-make_true_kappa <- function(grid,
-                            kappa0  = 0.3,
-                            sigma_l = 0.5,
-                            substructure = FALSE,
-                            kappa0_sub   = 0.15,
-                            sigma_sub    = 0.3,
-                            offset_sub   = c(0.8, 0.0)) {
-  X  <- outer(rep(1, grid$N_pix), grid$x)   # N x N matrix of x coords
-  Y  <- outer(grid$y, rep(1, grid$N_pix))   # N x N matrix of y coords
 
-  kappa <- kappa0 * exp(-(X^2 + Y^2) / (2 * sigma_l^2))
-
-  if (substructure) {
-    dx    <- X - offset_sub[1]
-    dy    <- Y - offset_sub[2]
-    kappa <- kappa + kappa0_sub * exp(-(dx^2 + dy^2) / (2 * sigma_sub^2))
-  }
-  kappa
+# -----------------------------------------------------------------------------
+# simulate_metacal_response()
+#
+# Simulates a metacalibration-style response matrix R for the shear estimator.
+# For a perfect estimator with no model bias, R = diag(1, 1).
+# For a biased estimator, R = diag(1+m, 1+m) where m is the mult. bias.
+#
+# In the project we directly inject bias via m in add_shape_noise_to_grid;
+# this function is provided for completeness and power analysis use.
+# -----------------------------------------------------------------------------
+simulate_metacal_response <- function(m = 0) {
+  matrix(c(1 + m, 0, 0, 1 + m), 2, 2)
 }
 
+
 # -----------------------------------------------------------------------------
-# ks_forward()
-# Maps convergence kappa (N x N real matrix) to shear (gamma1, gamma2).
-# Returns a list with two N x N real matrices.
+# galaxy_catalog()
+#
+# Generates a full galaxy catalog with positions and shapes.
+# Each galaxy is assigned a random position in the field and an
+# intrinsic ellipticity drawn from a Gaussian.  The observed ellipticity
+# is the sum of the lensed shear (interpolated to the galaxy position)
+# plus the intrinsic shape noise.
+#
+# Arguments:
+#   gamma_true : list with $gamma1, $gamma2 (N x N matrices on grid)
+#   grid       : from make_grid()
+#   N_gal      : number of galaxies
+#   sigma_e    : per-component intrinsic shape dispersion
+#   m, c       : bias parameters
+#   seed       : optional seed
+#
+# Returns: data.frame with columns x, y, e1_obs, e2_obs, gamma1_true, gamma2_true
 # -----------------------------------------------------------------------------
-ks_forward <- function(kappa, grid) {
-  N  <- grid$N_pix
+galaxy_catalog <- function(gamma_true, grid,
+                           N_gal   = 500,
+                           sigma_e = 0.26,
+                           m       = 0,
+                           c       = 0,
+                           seed    = NULL) {
+  if (!is.null(seed)) set.seed(seed)
 
-  # 2D FFT of kappa
-  kappa_ft <- fft(kappa)
+  # Random galaxy positions in [xmin, xmax] x [ymin, ymax]
+  x_gal <- runif(N_gal, min(grid$x), max(grid$x))
+  y_gal <- runif(N_gal, min(grid$y), max(grid$y))
 
-  # Build KS kernel D(kx, ky) on the Fourier grid
-  # Outer products give the 2D frequency arrays
-  KX <- outer(rep(1, N), grid$kx)   # kx varies along columns
-  KY <- outer(grid$ky, rep(1, N))   # ky varies along rows
+  # Bilinear interpolation of true shear to galaxy positions
+  g1_at_gal <- bilinear_interp(gamma_true$gamma1, grid, x_gal, y_gal)
+  g2_at_gal <- bilinear_interp(gamma_true$gamma2, grid, x_gal, y_gal)
 
-  K2 <- KX^2 + KY^2
-  K2[1, 1] <- 1      # avoid division by zero at DC; set gamma_ft[1,1] = 0 below
+  # Intrinsic ellipticity noise
+  e1_int <- rnorm(N_gal, 0, sigma_e)
+  e2_int <- rnorm(N_gal, 0, sigma_e)
 
-  # Real and imaginary parts of D(k) = (kx^2 - ky^2 + 2i*kx*ky) / (kx^2 + ky^2)
-  D_re <- (KX^2 - KY^2) / K2
-  D_im <- (2 * KX * KY) / K2
+  # Observed ellipticity: bias model + intrinsic noise
+  e1_obs <- (1 + m) * g1_at_gal + c + e1_int
+  e2_obs <- (1 + m) * g2_at_gal + c + e2_int
 
-  # Compute gamma1_ft = Re(D) * kappa_ft, gamma2_ft = Im(D) * kappa_ft
-  # (D is applied as complex multiplication in Fourier space)
-  D_complex <- matrix(complex(real = D_re, imaginary = D_im), N, N)
-  D_complex[1, 1] <- 0 + 0i   # zero DC mode
-
-  gamma_ft <- D_complex * kappa_ft
-
-  # Inverse FFT and take real part (imaginary part should be ~0 for real kappa)
-  gamma1 <- Re(fft(gamma_ft, inverse = TRUE)) / N^2
-  gamma2 <- Im(fft(gamma_ft, inverse = TRUE)) / N^2
-
-  # Note: gamma1 = Re(gamma), gamma2 = Im(gamma) using the complex shear convention.
-  # Equivalently:
-  #   gamma1 = (psi_xx - psi_yy) / 2
-  #   gamma2 = psi_xy
-  list(gamma1 = gamma1, gamma2 = gamma2)
+  data.frame(
+    x           = x_gal,
+    y           = y_gal,
+    e1_obs      = e1_obs,
+    e2_obs      = e2_obs,
+    gamma1_true = g1_at_gal,
+    gamma2_true = g2_at_gal
+  )
 }
 
-# -----------------------------------------------------------------------------
-# ks_inverse()
-# Kaiser-Squires inverse: recovers kappa from (gamma1, gamma2).
-# Applies conj(D) / |D|^2 = conj(D) in Fourier space (since |D|=1 away from DC).
-# Optional Wiener-filter regularization with regularization parameter lambda.
-# -----------------------------------------------------------------------------
-ks_inverse <- function(gamma1, gamma2, grid, lambda = 0) {
-  N  <- grid$N_pix
-
-  # FFT of observed shear components
-  g1_ft <- fft(gamma1)
-  g2_ft <- fft(gamma2)
-
-  # Reconstruct complex gamma in Fourier space: gamma_ft = g1_ft + i*g2_ft
-  gamma_ft <- matrix(complex(real = Re(g1_ft) - Im(g2_ft),
-                              imaginary = Im(g1_ft) + Re(g2_ft)), N, N)
-
-  # Build KS kernel (same as forward)
-  KX <- outer(rep(1, N), grid$kx)
-  KY <- outer(grid$ky, rep(1, N))
-  K2 <- KX^2 + KY^2
-  K2[1, 1] <- 1
-
-  D_re <- (KX^2 - KY^2) / K2
-  D_im <- (2 * KX * KY) / K2
-  D_complex <- matrix(complex(real = D_re, imaginary = D_im), N, N)
-  D_complex[1, 1] <- 0 + 0i
-
-  # kappa_ft = conj(D) * gamma_ft, with optional Tikhonov regularization
-  # Wiener filter: kappa_ft = conj(D) / (|D|^2 + lambda) * gamma_ft
-  # Since |D|=1 away from DC: Wiener filter = conj(D)/(1 + lambda) * gamma_ft
-  Dmod2 <- D_re^2 + D_im^2
-  Dmod2[1, 1] <- 1  # avoid zero denominator at DC
-
-  kappa_ft <- Conj(D_complex) / (Dmod2 + lambda) * gamma_ft
-  kappa_ft[1, 1] <- 0 + 0i  # set DC (mean) to zero
-
-  Re(fft(kappa_ft, inverse = TRUE)) / N^2
-}
 
 # -----------------------------------------------------------------------------
-# l2_error()
-# Normalized L2 reconstruction error: ||kappa_hat - kappa_true|| / ||kappa_true||
-# Evaluated on the interior only (strip 'border' pixels from each edge)
-# to avoid FFT boundary artefacts.
+# bilinear_interp()
+# Bilinear interpolation of an N x N grid matrix at scattered (x, y) points.
+# Used internally by galaxy_catalog().
 # -----------------------------------------------------------------------------
-l2_error <- function(kappa_hat, kappa_true, border = 4L) {
-  idx <- (border + 1L):(nrow(kappa_true) - border)
-  num <- sum((kappa_hat[idx, idx] - kappa_true[idx, idx])^2)
-  den <- sum(kappa_true[idx, idx]^2)
-  sqrt(num / den)
-}
+bilinear_interp <- function(mat, grid, x_pts, y_pts) {
+  N   <- grid$N_pix
+  x0  <- min(grid$x); x1 <- max(grid$x)
+  y0  <- min(grid$y); y1 <- max(grid$y)
 
-# -----------------------------------------------------------------------------
-# peak_kappa()
-# Returns the peak value of the reconstructed kappa map.
-# A simple scalar summary for bootstrap confidence intervals.
-# -----------------------------------------------------------------------------
-peak_kappa <- function(kappa_hat) max(kappa_hat)
+  # Normalize to [0, N-1] index space
+  xi  <- pmin(pmax((x_pts - x0) / (x1 - x0) * (N - 1), 0), N - 2)
+  yi  <- pmin(pmax((y_pts - y0) / (y1 - y0) * (N - 1), 0), N - 2)
 
-# -----------------------------------------------------------------------------
-# aperture_mass()
-# Aperture mass statistic: sum of kappa_hat pixels within radius r_ap (arcmin).
-# A second scalar summary for bootstrap and power analysis.
-# -----------------------------------------------------------------------------
-aperture_mass <- function(kappa_hat, grid, r_ap = 0.8) {
-  X   <- outer(rep(1, grid$N_pix), grid$x)
-  Y   <- outer(grid$y, rep(1, grid$N_pix))
-  mask <- (X^2 + Y^2) <= r_ap^2
-  sum(kappa_hat[mask]) * grid$pix^2
+  ix  <- floor(xi); dx <- xi - ix
+  iy  <- floor(yi); dy <- yi - iy
+
+  # Bilinear weights; R matrices are indexed [row, col] = [y, x]
+  i00 <- cbind(iy + 1,      ix + 1)
+  i10 <- cbind(iy + 2,      ix + 1)
+  i01 <- cbind(iy + 1,      ix + 2)
+  i11 <- cbind(iy + 2,      ix + 2)
+
+  (1 - dy) * (1 - dx) * mat[i00] +
+  dy       * (1 - dx) * mat[i10] +
+  (1 - dy) * dx       * mat[i01] +
+  dy       * dx       * mat[i11]
 }
