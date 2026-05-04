@@ -1,1 +1,0 @@
-# Galsim generated dataset
