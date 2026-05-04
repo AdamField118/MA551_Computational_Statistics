@@ -6,7 +6,7 @@
 // ── Title ──────────────────────────────────────────────────────────────────
 #title-slide(
   [Monte Carlo and Resampling Methods Applied to Weak Gravitational Lensing Mass Reconstruction],
-  [MA 522 - Computational Statistics],
+  [MA 551 - Computational Statistics],
   (
     ("Adam Field", "Department of Physics"),
   ),
@@ -42,20 +42,14 @@
 #content-slide([The Statistical Problem])[
   The mass reconstruction pipeline has two stages:
 
-  #v(8pt)
-
   + *Forward model:* $kappa arrow.r gamma$ via a known linear FFT operator $F$
   + *Inverse:* recover $hat(kappa)$ from noisy shear observations $gamma_"obs"$
-
-  #v(12pt)
 
   Each source galaxy contributes an ellipticity measurement with
   intrinsic scatter $sigma_e = 0.26$ per component ("shape noise"):
 
   $ gamma_"obs"[i,j] = (1+m),gamma_"true"[i,j] + epsilon[i,j], quad
     epsilon[i,j] tilde cal(N)(0,, sigma_e^2 \/ n_"gal/pix") $
-
-  #v(12pt)
 
   *Key questions (all from MA 551):*
   - What is the reconstruction error, and how variable is it? *(MC)*
@@ -88,10 +82,10 @@
   The R implementation was validated against SMPy's `KaiserSquiresMapper`
   (production Python KS). Both compute the same algebraic expression.
 
-  #v(10pt)
+  #v(-10pt)
 
   #table(
-    columns: (2fr, 1fr),
+    columns: (2fr, 0.5fr),
     stroke: none,
     inset: 6pt,
     table.hline(stroke: 0.5pt),
@@ -121,6 +115,7 @@
     stroke: none,
     inset: 0pt,
     [
+      #v(-14pt)
       *Grid:* $32 times 32$ pixels, $0.1$ arcmin/pixel \
       *Field:* $3.2 times 3.2$ arcmin${}^2$ \
       *True $kappa$:* Gaussian cluster, peak $= 0.297$, $sigma_ell = 0.5$ arcmin \
@@ -128,38 +123,22 @@
       *Noise:* $sigma_"pix" = 0.118$, max $|gamma| = 0.103$ \
       *SNR per pixel:* $approx 0.85$ (noise-dominated)
 
-      #v(14pt)
+      #v(0pt)
 
       *Two scalar summaries:*
       - Peak $hat(kappa)$: maximum pixel value
       - Aperture mass: $T_"ap" = sum_(r <= 0.8) hat(kappa) , delta theta^2$
 
-      #v(8pt)
-
       Aperture mass is preferred: it integrates over a region rather than
       taking the maximum of a noisy field.
     ],
     [
-      #v(10pt)
       #align(center)[
-        #rect(
-          width: 90%,
-          height: 210pt,
-          fill: surface,
-          radius: 6pt,
-          stroke: 1pt + muted,
+        #box(
+          stroke: (paint: muted, thickness: 3pt),
+          inset: 0pt,
         )[
-          #align(center + horizon)[
-            #text(fill: muted, size: 11pt)[
-              True $kappa$ map\
-              #v(4pt)
-              Gaussian cluster profile\
-              peak $= 0.297$\
-              #v(4pt)
-              32$times$32 grid\
-              $lambda = 10^{-3}$ regularization
-            ]
-          ]
+          #image("../figures/kappa_true.png", width: 92%)
         ]
       ]
     ]
@@ -199,10 +178,10 @@
 
   $ op("Var")(hat(I)_"anti") = frac(sigma^2, 2N)(1 + op("Cor")(g(epsilon), g(-epsilon))) < frac(sigma^2, 2N) $
 
-  #v(8pt)
+  #v(-10pt)
 
   #table(
-    columns: (2fr, 1fr, 1fr),
+    columns: (1fr, 1fr, 2fr),
     stroke: none,
     inset: 7pt,
     table.hline(stroke: 0.6pt),
@@ -214,14 +193,14 @@
     table.hline(stroke: 0.6pt),
   )
 
-  #v(10pt)
+  #v(-10pt)
 
   *The degenerate case:* $L_2(epsilon) = ||F^{-1} epsilon|| \/ ||kappa_"true"||$ depends
   only on $||epsilon||$, so $L_2(epsilon) = L_2(-epsilon)$ *exactly*.
   Antithetic pairs are identical; averaging them halves the effective sample size
   without any variance reduction.
 
-  #v(8pt)
+  #v(-10pt)
 
   This illustrates the key condition from Notes \#13: *antithetic sampling
   requires the integrand to be monotone.* An even function in $epsilon$ violates this.
@@ -233,7 +212,7 @@
 
   Proposal: $q(m) = "Uniform"(-0.15, 0.15)$. Self-normalized weights $w_i = p(m_i)/q(m_i)$.
 
-  #v(12pt)
+  #v(-10pt)
 
   #table(
     columns: (1fr, 1fr),
@@ -247,7 +226,7 @@
     table.hline(stroke: 0.6pt),
   )
 
-  #v(12pt)
+  #v(-10pt)
 
   The IS and uniform estimates agree closely. This is itself informative:
   *the reconstruction error is nearly flat in $m$ at this galaxy density.*
@@ -264,7 +243,7 @@
   *Parametric bootstrap:* draw $B = 500$ fresh noise realizations from the
   known $cal(N)(0, sigma_"pix"^2)$ distribution. The noise model is known exactly.
 
-  #v(10pt)
+  #v(-10pt)
 
   *BCa correction factors:*
 
@@ -273,7 +252,7 @@
     Delete column $j$, recompute KS reconstruction. Requires $N = 32$ reconstructions
     (not $N^2$). For near-linear estimators, $hat(a) approx 0$.
 
-  #v(10pt)
+  #v(-10pt)
 
   #table(
     columns: (2fr, 1fr, 1fr, 1fr, 1.5fr),
@@ -287,22 +266,24 @@
     table.hline(stroke: 0.6pt),
   )
 
-  #v(8pt)
+  #v(-10pt)
 
   Peak BCa fails: every bootstrap replicate adds fresh noise, so the bootstrap
   peak *always exceeds* the noiseless reference. $hat(z)_0 = Phi^{-1}(0) = -infinity$.
 ]
 
 #content-slide([Coverage Study: $n_"outer" = 200$ Replicates])[
+  #v(-10pt)
+
   For each outer replicate: generate one noisy observation, compute BCa and
   percentile CI, check coverage against the noiseless KS aperture mass target.
 
-  #v(14pt)
+  #v(-10pt)
 
   #table(
     columns: (2fr, 1fr, 1fr),
     stroke: none,
-    inset: 8pt,
+    inset: 7pt,
     table.hline(stroke: 0.6pt),
     [*Interval type*], [*Empirical coverage*], [*Mean width*],
     table.hline(stroke: 0.3pt),
@@ -311,7 +292,7 @@
     table.hline(stroke: 0.6pt),
   )
 
-  #v(14pt)
+  #v(-10pt)
 
   *Interpretation:*
   - Both achieve 97.5% at nominal 95%: slightly conservative, as expected when
@@ -328,10 +309,9 @@
   subtitle: [How many galaxies to detect 1% bias at 5$sigma$?])
 
 #content-slide([Design: Why Unpaired?])[
+
   *Goal:* detect multiplicative bias $|m| = 0.01$ via two-sample Welch $t$-test
   on $B$ independent aperture mass replicates per condition.
-
-  #v(10pt)
 
   *The paired design is degenerate for linear statistics.*
 
@@ -341,7 +321,11 @@
   Every replicate gives exactly the same $D_b$, so $op("sd")(D) = 0$ and NCP $= infinity$.
   This is the same linearity that caused the antithetic degeneracy.
 
-  #v(10pt)
+]
+
+// ── Section 5: Power Analysis ─────────────────────────────────────────────
+
+#content-slide([Design: Why Unpaired?])[
 
   *Unpaired design:* independent noise in each condition. Effect size is analytic:
   $ delta = |m| times T_"ap"^"KS" = 0.01 times 0.2504 = 0.00250 $
@@ -374,7 +358,7 @@
 
   #v(10pt)
 
-  *Minimum $N_"gal"$ for 80% power:* $approx 24{,}400$ (analytic `uniroot`).
+  *Minimum $N_"gal"$ for 80% power:* $approx$ 24,400 (analytic `uniroot`).
 
   #v(6pt)
 

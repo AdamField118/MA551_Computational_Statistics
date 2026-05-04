@@ -154,9 +154,15 @@ in analytical weak lensing studies #cite(<kaiser1993>).
 We use a $32 times 32$ pixel grid with pixel scale $0.1$ arcmin, giving a
 $3.2$ arcmin field. The true convergence is a Gaussian cluster profile
 $kappa_"true"(bold(theta)) = 0.3 exp(-|bold(theta)|^2 \/ 2sigma_ell^2)$
-with $sigma_ell = 0.5$ arcmin. With $N_"gal" = 5000$ galaxies,
+with $sigma_ell = 0.5$ arcmin, shown in @fig-kappa. With $N_"gal" = 5000$ galaxies,
 $sigma_"pix" = 0.118$ and the shear signal reaches $|gamma| approx 0.10$,
 giving a per-pixel SNR of approximately 0.85.
+
+#figure(
+  image("../figures/kappa_report.png", width: 52%),
+  caption: [True convergence map $kappa_"true"(bold(theta))$ used throughout the simulation study. The Gaussian cluster profile peaks at $kappa_0 = 0.297$ with scale radius $sigma_ell = 0.5$ arcmin. The field is $3.2 times 3.2$ arcmin² on a $32 times 32$ pixel grid.],
+  placement: auto,
+) <fig-kappa>
 
 *Reconstruction statistic.* Two scalar summaries of the KS reconstruction
 are used throughout: the peak convergence $T_"peak" = max(hat(kappa))$
@@ -210,7 +216,14 @@ DC offset. Results are summarized in @tab-mc.
 The aperture mass estimate is nearly unbiased relative to the noiseless KS
 target. The peak kappa estimate shows substantial positive bias (0.488 vs.
 0.297 true peak): the maximum of a 1024-pixel noisy field is a noise spike,
-not the cluster center.
+not the cluster center. The distributions of both statistics across all $B$
+replicates are shown in @fig-mc.
+
+#figure(
+  image("../figures/mc_distributions.png", width: 100%),
+  caption: [Monte Carlo distributions of peak $hat(kappa)$ (left) and aperture mass $T_"ap"$ (right) across $B = 500$ replicates. The dashed vertical line marks the target value in each case. Peak $hat(kappa)$ is severely upward-biased by noise spikes; aperture mass is nearly unbiased relative to the noiseless KS target.],
+  placement: auto,
+) <fig-mc>
 
 == Antithetic Variable Sampling
 
@@ -360,7 +373,8 @@ non-centrality parameter is:
 
 $ "NCP" = frac(delta, sqrt(2) sigma_"ap"(N_"gal") / sqrt(B)). $
 
-Power results for $B = 500$ replicates per condition are shown in @tab-power.
+Power results for $B = 500$ replicates per condition are shown in @tab-power,
+with the full power curve in @fig-power.
 
 #figure(
   table(
@@ -387,6 +401,12 @@ Power results for $B = 500$ replicates per condition are shown in @tab-power.
   caption: [Power curve for detecting $|m| = 0.01$ at 5-sigma significance.],
   placement: auto,
 ) <tab-power>
+
+#figure(
+  image("../figures/power_curve.png", width: 78%),
+  caption: [Power to detect $|m| = 0.01$ at 5-sigma significance as a function of the number of source galaxies $N_"gal"$, for $B = 500$ replicates per condition. The dashed crimson line marks the 80% power threshold at $N_"gal" approx$ 24,400.],
+  placement: auto,
+) <fig-power>
 
 The power curve shows a rapid transition from negligible power at
 $N_"gal" = 5000$ to near-certainty at $N_"gal" = 50000$. The minimum
