@@ -473,7 +473,7 @@ statistical analysis in a physically complete pipeline #cite(<rowe2015galsimmodu
 #align(center)[= Appendix: R Code]
 
 Selected key functions are reproduced below. Full source is in the
-accompanying project repository.
+accompanying project repository: https://github.com/AdamField118/MA551_Computational_Statistics/tree/main.
 
 *Kaiser--Squires inverse (lensing.R):*
 ```r
