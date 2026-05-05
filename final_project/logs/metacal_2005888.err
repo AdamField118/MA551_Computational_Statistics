@@ -1,0 +1,9 @@
+16:55:57 INFO Loading catalog: /home/adfield/MA551_Computational_Statistics/cosmos15_superbit2023_phot_shapes_with_sigma.csv
+16:55:59 INFO Raw catalog: 518404 rows
+16:55:59 INFO After quality cuts: 204634 rows
+16:55:59 INFO Subsampled to 50000 rows
+16:55:59 INFO Processing 50000 galaxy pairs on 18 workers
+16:55:59 INFO PSF: Gaussian fwhm=0.5"
+16:55:59 INFO nse_sd=12.720  scale=0.141  hlr=0.50  flux=12259.0  shear_true=0.010
+16:55:59 INFO Starting metacalibration ...
+slurmstepd: error: *** JOB 2005888 ON compute-2-01 CANCELLED AT 2026-05-05T17:00:14 ***

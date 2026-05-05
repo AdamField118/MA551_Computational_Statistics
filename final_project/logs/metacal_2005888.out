@@ -1,0 +1,10 @@
+==============================================
+Job  : 2005888
+Node : compute-2-01
+CPUs : 18
+Root : /home/adfield/MA551_Computational_Statistics
+Cat  : /home/adfield/MA551_Computational_Statistics/cosmos15_superbit2023_phot_shapes_with_sigma.csv
+PSF  : none (Gaussian fallback)
+Start: Tue 05 May 2026 04:55:49 PM EDT
+==============================================
+WARNING: No .psf file found in /home/adfield/MA551_Computational_Statistics/psf_data. Using Gaussian PSF.
