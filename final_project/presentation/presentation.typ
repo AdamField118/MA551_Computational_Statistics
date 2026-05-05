@@ -413,7 +413,6 @@
 ]
 
 #ack-slide((
-  ("Prof. Fangfang Wang",  "MA 551 course and feedback on the project proposal."),
   ("George Vassilakis ",    "Open-source Kaiser--Squires reference implementation."),
 ))
 
