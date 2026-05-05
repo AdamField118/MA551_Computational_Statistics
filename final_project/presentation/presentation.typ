@@ -48,8 +48,8 @@
   Each source galaxy contributes an ellipticity measurement with
   intrinsic scatter $sigma_e = 0.26$ per component ("shape noise"):
 
-  $ gamma_"obs"[i,j] = (1+m),gamma_"true"[i,j] + epsilon[i,j], quad
-    epsilon[i,j] tilde cal(N)(0,, sigma_e^2 \/ n_"gal/pix") $
+  $ gamma_"obs"[i,j] = (1+m)gamma_"true"[i,j] + epsilon[i,j], quad
+    epsilon[i,j] tilde cal(N)(0, sigma_e^2 \/ n_"gal/pix") $
 
   *Key questions (all from MA 551):*
   - What is the reconstruction error, and how variable is it? *(MC)*
@@ -64,7 +64,7 @@
 
 #math-slide(
   [Kaiser--Squires Inversion],
-  $ hat(kappa)(bold(k)) = overline(D(bold(k))) , hat(gamma)(bold(k)),
+  $ hat(kappa)(bold(k)) = overline(D(bold(k))) hat(gamma)(bold(k)),
     quad D(bold(k)) = frac(k_1^2 - k_2^2 + 2 i k_1 k_2, k_1^2 + k_2^2) $,
   before: [
     Shear and convergence are related in Fourier space via the KS kernel $D(bold(k))$.
