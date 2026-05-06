@@ -1,0 +1,12 @@
+18:55:58 INFO Loading catalog: /home/adfield/MA551_Computational_Statistics/cosmos15_superbit2023_phot_shapes_with_sigma.csv
+18:56:01 INFO Raw catalog: 518404 rows
+18:56:01 INFO After quality cuts: 204634 rows
+18:56:01 INFO Subsampled to 50000 rows
+18:56:01 INFO Processing 50000 galaxy pairs on 18 workers
+18:56:01 INFO PSF: Gaussian fwhm=0.5"
+18:56:01 INFO nse_sd=12.720  scale=0.141  hlr=0.50  flux=12259.0  shear_true=0.010
+18:56:01 INFO === Pre-flight: testing one galaxy in main process ===
+18:56:04 INFO Pre-flight passed. Starting parallel pool.
+18:56:04 INFO Starting metacalibration ...
+19:00:08 INFO Succeeded: 50000 / 50000  (0.0% failure rate)
+19:00:10 INFO Results written to /home/adfield/MA551_Computational_Statistics/final_project/results/metacal_bias.json

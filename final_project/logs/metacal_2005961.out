@@ -1,14 +1,14 @@
 ==============================================
-Job  : 2005892
+Job  : 2005961
 Node : compute-2-01
 CPUs : 18
 Root : /home/adfield/MA551_Computational_Statistics
 Cat  : /home/adfield/MA551_Computational_Statistics/cosmos15_superbit2023_phot_shapes_with_sigma.csv
 PSF  : /home/adfield/MA551_Computational_Statistics/psf_data/emp_psfs_best/psfex-output/superbit_psf_emp40.psf
-Start: Tue 05 May 2026 05:00:23 PM EDT
+Start: Tue 05 May 2026 05:56:36 PM EDT
 ==============================================
 Python exit code: 1
 Python step failed -- skipping R analysis.
 
-End    : Tue 05 May 2026 05:00:28 PM EDT
-Runtime: 00:00:05
+End    : Tue 05 May 2026 05:56:44 PM EDT
+Runtime: 00:00:08

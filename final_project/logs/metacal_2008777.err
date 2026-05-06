@@ -1,0 +1,15 @@
+18:42:58 INFO Loading catalog: /home/adfield/MA551_Computational_Statistics/cosmos15_superbit2023_phot_shapes_with_sigma.csv
+18:43:00 INFO Raw catalog: 518404 rows
+18:43:00 INFO After quality cuts: 204634 rows
+18:43:00 INFO Subsampled to 50000 rows
+18:43:00 INFO Processing 50000 galaxy pairs on 18 workers
+18:43:00 INFO PSF: Gaussian fwhm=0.5"
+18:43:00 INFO nse_sd=12.720  scale=0.141  hlr=0.50  flux=12259.0  shear_true=0.010
+18:43:00 INFO === Pre-flight: testing one galaxy in main process ===
+18:43:03 INFO Pre-flight passed. Starting parallel pool.
+18:43:03 INFO Starting metacalibration ...
+18:46:36 INFO Succeeded: 50000 / 50000  (0.0% failure rate)
+18:46:38 INFO Results written to /home/adfield/MA551_Computational_Statistics/final_project/results/metacal_bias.json
+Error in library(reticulate) : there is no package called ‘reticulate’
+Calls: source ... suppressPackageStartupMessages -> withCallingHandlers -> library
+Execution halted

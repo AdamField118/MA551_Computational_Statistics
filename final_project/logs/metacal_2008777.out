@@ -1,0 +1,30 @@
+==============================================
+Job  : 2008777
+Node : compute-2-04
+CPUs : 18
+Root : /home/adfield/MA551_Computational_Statistics
+Cat  : /home/adfield/MA551_Computational_Statistics/cosmos15_superbit2023_phot_shapes_with_sigma.csv
+PSF  : none (Gaussian fallback)
+Start: Tue 05 May 2026 06:42:55 PM EDT
+==============================================
+WARNING: No .psf file found in /home/adfield/MA551_Computational_Statistics/psf_data. Using Gaussian PSF.
+
+============================================================
+METACALIBRATION BIAS ESTIMATES
+============================================================
+  Galaxies processed : 50,000 / 50,000
+  m  = (5.672 +/- 5.442) x 10^-3
+  c  = (0.00497 +/- 0.00105)
+  R11 (ensemble)     : 0.9401 +/- 0.0007
+============================================================
+
+Output : /home/adfield/MA551_Computational_Statistics/final_project/results/metacal_bias.json
+Next   : Rscript R/run_all.R  (reads metacal_bias.json automatically)
+Python exit code: 0
+
+=== Running R analysis pipeline ===
+Working directory: /home/adfield/MA551_Computational_Statistics/final_project
+
+
+End    : Tue 05 May 2026 06:46:39 PM EDT
+Runtime: 00:03:44

@@ -42,6 +42,7 @@ import logging
 import math
 import os
 import sys
+import traceback
 from multiprocessing import Pool, cpu_count
 
 import numpy as np
@@ -356,7 +357,7 @@ def _process_one(args):
     """
     (i, q, phi_rad, seed, psf_fwhm, psfex_file) = args
     rng = np.random.RandomState(seed)
-    ud  = galsim.BaseDeviate(seed) if psfex_file else None
+    ud  = galsim.UniformDeviate(seed) if psfex_file else None
 
     try:
         (obs0, obsp, obsm,
@@ -368,7 +369,7 @@ def _process_one(args):
             psfex_file=psfex_file,
             ud=ud)
     except Exception as exc:
-        log.debug('Galaxy %d simulation failed: %s', i, exc)
+        log.error('Galaxy %d simulation failed: %s\n%s', i, exc, traceback.format_exc())
         return None
 
     # Build MetacalBootstrapper (mirrors shear_bias/m/main.py runner setup)
@@ -396,7 +397,7 @@ def _process_one(args):
         data_p = process_obs(obsp, boot)
         data_m = process_obs(obsm, boot)
     except Exception as exc:
-        log.debug('Galaxy %d metacal failed: %s', i, exc)
+        log.error('Galaxy %d metacal failed: %s\n%s', i, exc, traceback.format_exc())
         return None
 
     return data_p, data_m, g_th_p, g_th_m
@@ -556,17 +557,50 @@ def main():
     ]
 
     # ------------------------------------------------------------------
+    # Pre-flight: run one galaxy in the main process so any crash is
+    # immediately visible with a full traceback before the pool starts.
+    # ------------------------------------------------------------------
+    log.info('=== Pre-flight: testing one galaxy in main process ===')
+    test_result = _process_one(args_list[0])
+    if test_result is None:
+        log.error(
+            'Pre-flight galaxy failed.  The error was logged above.\n'
+            'Common causes:\n'
+            '  * PSFEx file unreadable or wrong format\n'
+            '  * WCS pixel_scale / image size mismatch for this PSF\n'
+            '  * ngmix/galsim import error in worker environment\n'
+            'Fix the issue above, then re-submit.'
+        )
+        sys.exit(1)
+    log.info('Pre-flight passed. Starting parallel pool.')
+
+    # ------------------------------------------------------------------
     # Parallel processing (mirrors Pool usage in shear_bias/m/main.py)
     # ------------------------------------------------------------------
     data_list_p, data_list_m = [], []
     gth_list_p,  gth_list_m  = [], []
     n_fail = 0
 
+    # Seed pre-flight result so we don't waste it
+    struct_p, struct_m, g_th_p, g_th_m = test_result
+    data_list_p.append(struct_p)
+    data_list_m.append(struct_m)
+    gth_list_p.append(g_th_p)
+    gth_list_m.append(g_th_m)
+
     log.info('Starting metacalibration ...')
     with Pool(processes=args.n_workers) as pool:
-        for result in pool.imap(_process_one, args_list, chunksize=50):
+        # Skip index 0 — already processed in pre-flight
+        for result in pool.imap(_process_one, args_list[1:], chunksize=50):
             if result is None:
                 n_fail += 1
+                # After 100 consecutive failures, abort with a message
+                if n_fail == 100 and len(data_list_p) == 0:
+                    log.error(
+                        'First 100 galaxies all failed after pre-flight passed.\n'
+                        'This likely means a race condition or PSFEx WCS issue in '
+                        'forked workers.\nTry --n-workers 1 to confirm, then report.'
+                    )
                 continue
             struct_p, struct_m, g_th_p, g_th_m = result
             data_list_p.append(struct_p)

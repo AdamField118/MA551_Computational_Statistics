@@ -1,0 +1,10 @@
+17:56:41 INFO Loading catalog: /home/adfield/MA551_Computational_Statistics/cosmos15_superbit2023_phot_shapes_with_sigma.csv
+17:56:43 INFO Raw catalog: 518404 rows
+17:56:43 INFO After quality cuts: 204634 rows
+17:56:44 INFO Subsampled to 50000 rows
+17:56:44 INFO Processing 50000 galaxy pairs on 18 workers
+17:56:44 INFO PSF: PSFEx (superbit_psf_emp40.psf)
+17:56:44 INFO nse_sd=12.720  scale=0.141  hlr=0.50  flux=12259.0  shear_true=0.010
+17:56:44 INFO Starting metacalibration ...
+17:56:44 INFO Succeeded: 0 / 50000  (100.0% failure rate)
+17:56:44 ERROR Too few successful measurements (0). Exiting.

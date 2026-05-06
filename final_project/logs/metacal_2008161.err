@@ -1,0 +1,27 @@
+18:36:33 INFO Loading catalog: /home/adfield/MA551_Computational_Statistics/cosmos15_superbit2023_phot_shapes_with_sigma.csv
+18:36:36 INFO Raw catalog: 518404 rows
+18:36:36 INFO After quality cuts: 204634 rows
+18:36:36 INFO Subsampled to 50000 rows
+18:36:36 INFO Processing 50000 galaxy pairs on 18 workers
+18:36:36 INFO PSF: PSFEx (superbit_psf_emp40.psf)
+18:36:36 INFO nse_sd=12.720  scale=0.141  hlr=0.50  flux=12259.0  shear_true=0.010
+18:36:36 INFO === Pre-flight: testing one galaxy in main process ===
+18:36:36 ERROR Galaxy 0 simulation failed: 'BaseDeviate' object is not callable
+Traceback (most recent call last):
+  File "/home/adfield/MA551_Computational_Statistics/final_project/pipeline/metacal_pipeline.py", line 365, in _process_one
+    gal_hlr, gal_flux) = make_data(
+                         ^^^^^^^^^^
+  File "/home/adfield/MA551_Computational_Statistics/final_project/pipeline/metacal_pipeline.py", line 225, in make_data
+    psf = _get_psfex_psf(psfex_file, ud)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/adfield/MA551_Computational_Statistics/final_project/pipeline/metacal_pipeline.py", line 201, in _get_psfex_psf
+    x = margin + (xsize - 2 * margin) * ud()
+                                        ^^^^
+TypeError: 'BaseDeviate' object is not callable
+
+18:36:36 ERROR Pre-flight galaxy failed.  The error was logged above.
+Common causes:
+  * PSFEx file unreadable or wrong format
+  * WCS pixel_scale / image size mismatch for this PSF
+  * ngmix/galsim import error in worker environment
+Fix the issue above, then re-submit.

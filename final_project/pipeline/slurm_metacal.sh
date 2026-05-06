@@ -26,7 +26,7 @@
 # ---------------------------------------------------------------------------
 PROJ_ROOT="$(pwd)"   # MA551_Computational_Statistics/
 CATALOG="${PROJ_ROOT}/cosmos15_superbit2023_phot_shapes_with_sigma.csv"
-PSFEX_DIR="${PROJ_ROOT}/psf_data/emp_psfs_best/psfex-output"
+PSFEX_DIR="${PROJ_ROOT}/psf_data"
 
 # Pick the first .psf file found in psf_data/
 # Change this to a specific file if you want a particular exposure:
@@ -49,7 +49,7 @@ export NUMEXPR_NUM_THREADS=1
 
 # Turing conda setup (same path used in all ShearNet SLURM scripts)
 source /cm/shared/spack/opt/spack/linux-ubuntu20.04-x86_64/gcc-13.2.0/miniconda3-25.1.1-24g7bpuxyyxo5pfd4zn5sldbomvz736a/etc/profile.d/conda.sh
-conda activate shearnet_gpu
+conda activate comp_stats
 
 # ---------------------------------------------------------------------------
 # Job info
@@ -100,7 +100,7 @@ if [ ${PY_EXIT} -eq 0 ]; then
     echo ""
     echo "=== Running R analysis pipeline ==="
     module load R/4.3.1 2>/dev/null || true   # load if available; harmless if not
-    Rscript "${PROJ_ROOT}/final_project/R/run_all.R"
+    cd "${PROJ_ROOT}/final_project" && Rscript R/run_all.R
 else
     echo "Python step failed -- skipping R analysis."
 fi
